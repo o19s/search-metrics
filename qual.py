@@ -49,6 +49,25 @@ def dcg(grades, n=0):
         dcg += grades[i] / log((r + 1), 2.0)
     return dcg
 
+def dcgWConfs(grades, confs, midGrade=2.0, n=0):
+    if len(grades) != len(confs):
+        raise ValueError("dcgWConfs needs same number of grades as confs")
+    if n > len(grades) or n > len(confs):
+        raise ValueError("dcg@%s cannot be calculated with %s grades" % (n, len(grades)))
+    if n == 0:
+        n = len(grades)
+    from math import log
+    dcg = 0
+    for i in range(0,n):
+        # Conf adjusted grade, if low confidence we dont have good information
+        # on the 'true' grade, so it gets pushed to a 2. The true DCG is a bell curve...
+        # This is similar to the RankSVM unbiased technique in Joachim's paper
+        r = (i + 1)
+        confAdjustedGrade = midGrade + confs[i] * (grades[i] - midGrade)
+        print("Grade %s Conf Adjusted %s" % (grades[i], confAdjustedGrade))
+        dcg += (confAdjustedGrade / log((r + 1), 2.0))
+    return dcg
+
 
 def ndcg(grades, n=0):
     return dcg(grades, n=n) / dcg(sorted(grades, reverse=True), n=n)
