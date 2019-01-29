@@ -37,6 +37,42 @@ def err(grades, n=0):
     return ERR
 
 
+def damage(results1, results2, at=10):
+    """ How "damaging" could the change from results1 -> results2 be?
+
+        (results1, results2 are an array of document identifiers)
+
+        For each result in result1,
+            Is the result in result2[:at]
+                If so, how far has it moved?
+            If not,
+                Consider it a move of at+1
+
+            damage += discount(idx) * moveDist
+                """
+
+    from math import log
+
+    def discount(idx):
+        return 1.0 / log(idx + 2)
+
+    idx = 0
+    dmg = 0.0
+
+    if len(results1) < at:
+        at = len(results1)
+
+    for result in results1[:at]:
+        movedToIdx = at + 1 # out of the window
+        if result in results2:
+            movedToIdx = results2.index(result)
+        moveDist = abs(movedToIdx - idx)
+        dmg += discount(idx) * moveDist
+        idx += 1
+
+    return dmg
+
+
 def dcg(grades, n=0):
     if n > len(grades):
         raise ValueError("dcg@%s cannot be calculated with %s grades" % (n, len(grades)))
