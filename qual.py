@@ -1,3 +1,24 @@
+def rr(grades, n=0):
+    """
+    Reciprocal Rank is the first step in calculating Mean Reciprocal Rank
+    https://en.wikipedia.org/wiki/Mean_reciprocal_rank
+
+    This is a measure for how far down a results list a user has to go to find the first relevant document. A document
+    is relevant if its grade is > 0.
+
+    :param grades: A list of numbers indicating how relevant the corresponding document was at that position in the list
+    :param n: A number indicating how far down the list to go before giving up
+    :return: A number between 1.0 and 0.0 indicating how far up the list the relevant document was found
+    """
+    if n > len(grades):
+        n = len(grades)
+
+    for i in range(0, n):
+        if grades[i] > 0.0:
+            return float(1.0 / (i + 1.0))
+    return 0.0
+
+
 def gain(grade, maxGrade=4.0):
     return (2**grade - 1.0) / (2 ** maxGrade)
 
@@ -16,6 +37,10 @@ def err(grades, n=0):
     In the cascading model As the user scans down. If something has a
     near 1 probability of satisfying user near the top. If something near top has
 
+    :param grades: A list of numbers indicating how relevant the corresponding document was at that position in the list
+    :param n: A number indicating the maximum number of positions to consider
+    :param max_grade: A float indicating the maximum grade a doc can get
+    :return: A number between 1.0 and 0.0 indicating how good the results were (higher is better)
     """
     if n > len(grades):
         raise ValueError("err@%s cannot be calculated with %s grades" % (n, len(grades)))
@@ -74,6 +99,16 @@ def damage(results1, results2, at=10):
 
 
 def dcg(grades, n=0):
+    """
+    Discounted Cumulative Gain
+    https://en.wikipedia.org/wiki/Discounted_cumulative_gain#Discounted_Cumulative_Gain
+
+    A metric that varies directly with the average judgement of the result set, placing more weight toward the top.
+
+    :param grades: A list of numbers indicating how relevant the corresponding document was at that position in the list
+    :param n: A number indicating the maximum number of positions to consider
+    :return: A number >= 0.0 indicating how the result set should be judged
+    """
     if n > len(grades):
         raise ValueError("dcg@%s cannot be calculated with %s grades" % (n, len(grades)))
     if n == 0:
@@ -106,4 +141,20 @@ def dcgWConfs(grades, confs, midGrade=2.0, n=0):
 
 
 def ndcg(grades, n=0):
-    return dcg(grades, n=n) / dcg(sorted(grades, reverse=True), n=n)
+    """
+    Normalized Discounted Cumulative Gain
+    https://en.wikipedia.org/wiki/Discounted_cumulative_gain#Normalized_DCG
+
+    A metric that considers the sort order of the rated documents against an ideal sort order with higher rated docs
+    at the top and lower rated docs at the bottom.
+
+    :param grades: A list of numbers indicating how relevant the corresponding document was at that position in the list
+    :param n: A number indicating the maximum number of positions to consider
+    :return: A number between 1.0 and 0.0 indicating how close to the ideal ordering the docs are (higher is better)
+    """
+    _dcg = dcg(grades, n=n)
+    _idcg = dcg(sorted(grades, reverse=True), n=n)
+    if _idcg > 0.0:
+        return _dcg / _idcg
+    else:
+        return 0.0
