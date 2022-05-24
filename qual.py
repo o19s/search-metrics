@@ -109,9 +109,7 @@ def dcg(grades, n=0):
     :param n: A number indicating the maximum number of positions to consider
     :return: A number >= 0.0 indicating how the result set should be judged
     """
-    if n > len(grades):
-        raise ValueError("dcg@%s cannot be calculated with %s grades" % (n, len(grades)))
-    if n == 0:
+    if n >= 0:
         n = len(grades)
     from math import log
     dcg = 0
