@@ -10,9 +10,9 @@ def rr(grades, n=0):
     :param n: A number indicating how far down the list to go before giving up
     :return: A number between 1.0 and 0.0 indicating how far up the list the relevant document was found
     """
-    if n > len(grades):
+    if n == 0:
         n = len(grades)
-
+    n = min(n, len(grades))
     for i in range(0, n):
         if grades[i] > 0.0:
             return float(1.0 / (i + 1.0))
@@ -44,7 +44,7 @@ def err(grades, n=0):
     """
     if n == 0:
         n = len(grades)
-    n = min(n, len(grades)
+    n = min(n, len(grades))
     ERR = 0
     trustBank = 1 # In a way the users "trustBank"
     for i in range(0,n):
@@ -110,7 +110,7 @@ def dcg(grades, n=0):
     """
     if n == 0:
         n = len(grades)
-    n = min(n, len(grades)
+    n = min(n, len(grades))
     from math import log
     dcg = 0
     for i in range(0,n):
@@ -123,7 +123,7 @@ def dcgWConfs(grades, confs, midGrade=2.0, n=0):
         raise ValueError("dcgWConfs needs same number of grades as confs")
     if n == 0:
         n = len(grades)
-    n = min(n, len(grades)
+    n = min(n, len(grades))
     from math import log
     dcg = 0
     for i in range(0,n):
