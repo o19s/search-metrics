@@ -137,7 +137,7 @@ def dcgWConfs(grades, confs, midGrade=2.0, n=0):
     return dcg
 
 
-def ndcg(grades, n=0):
+def ndcg(grades, rels, n=0):
     """
     Normalized Discounted Cumulative Gain
     https://en.wikipedia.org/wiki/Discounted_cumulative_gain#Normalized_DCG
@@ -146,11 +146,15 @@ def ndcg(grades, n=0):
     at the top and lower rated docs at the bottom.
 
     :param grades: A list of numbers indicating how relevant the corresponding document was at that position in the list
+    :param rels: A list of numbers containing all of the relevance judgements, for computing the ideal DCG. May be just the non-zero values.
     :param n: A number indicating the maximum number of positions to consider
     :return: A number between 1.0 and 0.0 indicating how close to the ideal ordering the docs are (higher is better)
     """
+    if n == 0:
+        n = len(grades)
+    n = min(n, len(grades))
     _dcg = dcg(grades, n=n)
-    _idcg = dcg(sorted(grades, reverse=True), n=n)
+    _idcg = dcg(sorted(rels, reverse=True), n=n)
     if _idcg > 0.0:
         return _dcg / _idcg
     else:
